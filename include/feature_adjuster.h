@@ -1,8 +1,14 @@
 #ifndef FEATUREADJUSTER_H
 #define FEATUREADJUSTER_H
-#include <opencv2/features2d.hpp>
+
+#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
 #include <string>
 #include <iostream>
+#include <cassert>
+#include <iostream>
+#include <algorithm>
 
 /** \brief an detector adjuster optimized for image sequences (video).
  * Use this Adjuster with the DynamicAdaptedFeatureDetector. 
