@@ -18,7 +18,6 @@ namespace ORB_RGBD_SLAM
 cv::Feature2D* createDetector();
 cv::Ptr<cv::DescriptorExtractor> createDescriptorExtractor();
 int bruteForceSearchORB(const uint64_t* v, const uint64_t* search_array, const unsigned int& size, int& result_index);
-
   
 }
 #endif

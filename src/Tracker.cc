@@ -43,6 +43,6 @@ void Tracker::depthToCV8UC1(cv::Mat& depth_img, cv::Mat& mono8_img)
 }
 void Tracker::processNode(Node* new_node)
 {
-
+   bool has_been_added=graph_mgr->addNode(new_node);
 }
 }
