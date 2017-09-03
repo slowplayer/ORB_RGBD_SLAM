@@ -13,6 +13,7 @@
 #include "MatchingResult.h"
 #include "ParameterServer.h"
 #include "IcpSolver.h"
+#include "misc.h"
 
 namespace ORB_RGBD_SLAM
 {

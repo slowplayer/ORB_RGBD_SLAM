@@ -95,8 +95,24 @@ MatchingResult Node::matchNodePair(const Node* older_node)
   if(mr.all_matches.size()>=min_matches)
   {
     found_transformation=getRelativeTransformationTo(older_node,&mr->all_matches,mr.ransac_trafo,mr.rmse,mr.inlier_matches);
+    if(found_transformation)
+    {
+      mr.final_trafo=mr.ransac_trafo;
+      mr.edge.informationMatrix=Eigen::Matrix<double,6,6>::Identity()*(mr.inlier_matches.size()/(mr.rmse*mr.rmse));
+      mr.edge.id1=older_node->id_;
+      mr.edge.id2=this->id_;
+      mr.edge.transform=mr.final_trafo.cast<double>();
+      
+    }
   }
-  
+  if(found_transformation)
+    ++init_node_matches_;
+  else
+  {
+    mr.edge.id1=-1;
+    mr.edge.id2=-1;
+  }
+  return mr;
 }
 bool isNearer(const cv::DMatch& m1, const cv::DMatch& m2) { 
   return m1.distance < m2.distance; 
@@ -179,7 +195,6 @@ void Node::computeInliersAndError(const std::vector<cv::DMatch> & all_matches,
                                   size_t min_inliers, //break if this can't be reached
                                   std::vector<cv::DMatch>& inliers, //pure output var
                                   double& return_mean_error,//pure output var: rms-mahalanobis-distance
-                                  //std::vector<double>& errors,
                                   double squaredMaxInlierDistInM) const
 { 
   inliers.clear();
@@ -190,10 +205,7 @@ void Node::computeInliersAndError(const std::vector<cv::DMatch> & all_matches,
   double mean_error = 0.0;
   Eigen::Matrix4d transformation4d = transformation4f.cast<double>();
 
-//parallelization is detrimental here
-//#pragma omp parallel for reduction (+: mean_error)
   for(int i=0; i < all_matches_size; ++i)
-  //BOOST_FOREACH(const cv::DMatch& m, all_matches)
   {
     const cv::DMatch& m = all_matches[i];
     const Eigen::Vector4f& origin = origins[m.queryIdx];
@@ -206,18 +218,13 @@ void Node::computeInliersAndError(const std::vector<cv::DMatch> & all_matches,
       continue; //ignore outliers
     }
     if(!(mahal_dist >= 0.0)){
-   //   ROS_WARN_STREAM("Mahalanobis_ML_Error: "<<mahal_dist);
-   //   ROS_WARN_STREAM("Transformation for error !>= 0:\n" << transformation4d << "Matches: " << all_matches.size());
       continue;
     }
     mean_error += mahal_dist;
-//#pragma omp critical
     inliers.push_back(m); //include inlier
   }
 
-
   if (inliers.size()<3){ //at least the samples should be inliers
-   // ROS_DEBUG("No inliers at all in %d matches!", (int)all_matches.size()); // only warn if this checks for all initial matches
     return_mean_error = 1e9;
   } else {
     mean_error /= inliers.size();
@@ -262,8 +269,8 @@ bool Node::getRelativeTransformationTo(const Node* earlier_node, std::vector< cv
 
         //test which features are inliers 
         computeInliersAndError(*initial_matches, transformation, 
-                               this->feature_locations_3d_, //this->feature_depth_stats_, 
-                               earlier_node->feature_locations_3d_, //earlier_node->feature_depth_stats_, 
+                               this->feature_location_3d_, //this->feature_depth_stats_, 
+                               earlier_node->feature_location_3d_, //earlier_node->feature_depth_stats_, 
                                std::max(min_inlier_threshold, static_cast<unsigned int>(refined_matches.size())), //break if no chance to reach this amount of inliers
                                inlier, inlier_error, max_dist_m*max_dist_m); 
         
@@ -309,8 +316,8 @@ bool Node::getRelativeTransformationTo(const Node* earlier_node, std::vector< cv
     std::vector<cv::DMatch> inlier; //result
     //test which samples are inliers 
     computeInliersAndError(*initial_matches, transformation, 
-                           this->feature_locations_3d_, //this->feature_depth_stats_, 
-                           earlier_node->feature_locations_3d_, //earlier_node->feature_depth_stats_, 
+                           this->feature_location_3d_, //this->feature_depth_stats_, 
+                           earlier_node->feature_location_3d_, //earlier_node->feature_depth_stats_, 
                            min_inlier_threshold, //break if no chance to reach this amount of inliers
                            inlier, inlier_error, max_dist_m*max_dist_m); 
     
@@ -326,11 +333,7 @@ bool Node::getRelativeTransformationTo(const Node* earlier_node, std::vector< cv
   
   //TODO:G2O Refinement
   
-  
-  
-  
-  
-   return matches.size()>=min_inlier_threshold;
+  return matches.size()>=min_inlier_threshold;
 }
 
   

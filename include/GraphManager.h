@@ -53,11 +53,16 @@ private:
   void optimizeGraph();
   
   void addKeyframe(int id);
+  std::list<int> getPotentialEdgeTargetsWithDijkstra(const Node* new_node,
+    int seq_targets,int geod_targets,int samp_targets,int prodecessor_id,bool include_predecessor);
   
   std::map<int,Node*> graph_;
   std::list<int> keyframe_ids_;
   unsigned int min_matches;
   unsigned int next_seq_id,next_vertex_id;
+  
+  //get potenial edge
+  int seq_cand,geod_cand,samp_cand;
 };
 }
 
