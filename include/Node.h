@@ -42,7 +42,7 @@ public:
   double timestamp_;
   int init_node_matches_;
   
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  bool matchable_;
 private:
   void depthToCV8UC1(cv::Mat& depth_img, cv::Mat& mono8_img);
   void removeDepthless(std::vector<cv::KeyPoint>& feature_location_2d,const cv::Mat& depth);
@@ -70,6 +70,8 @@ private:
                                   //std::vector<double>& errors,
                                   double squaredMaxInlierDistInM) const;				   
   void processNode(Node* node_ptr);
+  
+   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }
 #endif

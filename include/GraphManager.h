@@ -25,6 +25,11 @@
 
 namespace ORB_RGBD_SLAM
 {
+typedef std::map<int, Node* >::iterator graph_it;
+typedef std::set<g2o::HyperGraph::Edge*> EdgeSet;
+typedef g2o::HyperGraph::EdgeSet::iterator EdgeSet_it;
+typedef std::map<int, Node* >::iterator graph_it;
+  
 typedef g2o::BlockSolver< g2o::BlockSolverTraits<6, 3> >  SlamBlockSolver;
 typedef g2o::LinearSolverCSparse<SlamBlockSolver::PoseMatrixType> SlamLinearCSparseSolver;
 typedef g2o::LinearSolverCholmod<SlamBlockSolver::PoseMatrixType> SlamLinearCholmodSolver;
@@ -41,7 +46,14 @@ public:
   GraphManager();
   
   bool addNode(Node* new_node);
+  
+  
+    //Pose vertices (in camera coordinate system)
+    g2o::HyperGraph::VertexSet camera_vertices;
+    ///"Regular" edges from camera to camera as found form feature correspondeces
+    g2o::HyperGraph::EdgeSet cam_cam_edges_;
 private:
+  
   void firstNode(Node* new_node);
   bool otherNode(Node* new_node);
   
@@ -49,12 +61,17 @@ private:
 		       Eigen::Matrix4f& curr_motion_estimate,
 		       bool& edge_to_keyframe);
   
+  
   void optimizeGraph();
   
   void addKeyframe(int id);
   std::list<int> getPotentialEdgeTargetsWithDijkstra(const Node* new_node,
     int seq_targets,int geod_targets,int samp_targets,int prodecessor_id,bool include_predecessor);
   
+   g2o::SparseOptimizer* optimizer_;
+  
+  Eigen::Matrix4d init_base_pose_;
+   
   std::map<int,Node*> graph_;
   std::list<int> keyframe_ids_;
   unsigned int min_matches;
