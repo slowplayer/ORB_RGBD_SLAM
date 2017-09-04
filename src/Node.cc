@@ -2,19 +2,23 @@
 
 namespace ORB_RGBD_SLAM
 {
-Node(const cv::Mat& imGray,const cv::Mat& imDepth,
+Node(const cv::Mat& imRGB,const cv::Mat& imDepth,
        const cv::Mat& detector_mask,double timestamp,
        cv::Ptr<cv::Feature2D> detector,
        cv::Ptr<cv::DescriptorExtractor> extractor)
 :id_(-1),seq_id_(-1),vertex_id_(-1),init_node_matches_(0),timestamp_(timestamp)
 {
+  cv::Mat imGray;
+  
+  cv::cvtColor(imRGB,imGray,CV_RGB2GRAY);
+  
   detector->detect(imGray,feature_location_2d_,detector_mask);
   
   removeDepthless(feature_location_2d_,imDepth);
   
   extractor->compute(imGray,feature_location_2d_,features_descriptors_);
   
-  projectTo3D(feature_location_2d_,feature_location_3d_,imDepth);
+  projectTo3D(feature_location_2d_,feature_location_3d_,feature_color_3d_,imDepth,imRGB);
   
   assert(feature_location_2d_.size()==feature_location_3d_.size());
   assert(feature_location_3d_.size()==(unsigned int)features_descriptors_.rows);
@@ -53,7 +57,7 @@ void Node::removeDepthless(std::vector< cv::KeyPoint >& feature_location_2d, con
   }
 }
 
-void Node::projectTo3D(std::vector< cv::KeyPoint >& feature_location_2d, std_vector_of_eigen_vector4f& feature_location_3d, const cv::Mat& depth)
+void Node::projectTo3D(std::vector< cv::KeyPoint >& feature_location_2d, std_vector_of_eigen_vector4f& feature_location_3d,std::vector<cv::Vec3b>& feature_color_3d,const cv::Mat& depth,const cv::Mat& color)
 {
   ParameterServer* ps=ParameterServer::instance();
   
@@ -71,15 +75,22 @@ void Node::projectTo3D(std::vector< cv::KeyPoint >& feature_location_2d, std_vec
   cv::Point2d p2d;
   float Z;
   float x,y,z;
+  int u,v;
+  cv::Vec3b c;
   for(unsigned int i=0;i<feature_location_2d.size();i++)
   {
-    Z=depth.at<float>(round(p2d.y),round(p2d.x));
+    p2d=feature_location_2d_[i];
+    u=round(p2d.x);
+    v=round(p2d.y);
+    Z=depth.at<float>(v,u);
+    c=color.at<cv::Vec3b>(v,u);
     
     x=(p2d.x-cx)*Z*fxinv;
     y=(p2d.y-cy)*Z*fyinv;
     z=Z;
     
     feature_location_3d.push_back(Eigen::Vector4f(x,y,z,1.0));
+    feature_color_3d.push_back(c);
   }
 }
 

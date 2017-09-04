@@ -15,12 +15,12 @@ void Tracker::GrabRGBD(const cv::Mat& imRGB, const cv::Mat& imDepth, double time
   cv::Mat gray_img;
   cv::Mat depth_mono8_img;
   
-  cv::cvtColor(imRGB,gray_img,CV_RGB2GRAY);
+  //cv::cvtColor(imRGB,gray_img,CV_RGB2GRAY);
   
   //TODO:make sure the type of imDepth is CV_32FC1
   depthToCV8UC1(imDepth,depth_mono8_img);
   
-  Node* node_ptr=new Node(gray_img,imDepth,depth_mono8_img,timestamp,detector_,extractor_);
+  Node* node_ptr=new Node(imRGB,imDepth,depth_mono8_img,timestamp,detector_,extractor_);
   
   processNode(node_ptr);
 }
