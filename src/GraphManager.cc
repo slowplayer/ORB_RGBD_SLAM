@@ -49,7 +49,8 @@ bool GraphManager::otherNode(Node* new_node)
 {
   Eigen::Matrix4f motion_estimate;
   bool edge_to_last_keyframe_found=false;
-  bool found_match=nodeComparisons(new_node,curr_motion_estimate,edge_to_last_keyframe_found);
+  bool found_match=nodeComparisons(new_node,motion_estimate,edge_to_last_keyframe_found);
+  
   
 }
 void GraphManager::addKeyframe(int id)

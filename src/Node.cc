@@ -114,6 +114,7 @@ MatchingResult Node::matchNodePair(const Node* older_node)
       mr.edge.id2=this->id_;
       mr.edge.transform=mr.final_trafo.cast<double>();
       
+      
     }
   }
   if(found_transformation)
@@ -163,7 +164,7 @@ std::vector< cv::DMatch > Node::sample_matches_prefer_by_distance(unsigned int s
   std::set<unsigned int> sampled_ids;
   int safety_net=0;
   
-  while(sampled_ids.size()<sampled_size&&matches_with_depth.size()>=sample_size)
+  while(sampled_ids.size()<sample_size&&matches_with_depth.size()>=sample_size)
   {
       int id1=rand()%matches_with_depth.size();
       int id2=rand()%matches_with_depth.size();
@@ -191,7 +192,7 @@ Eigen::Matrix4f getTransformFromMatches(const Node* newer_node,const Node* earli
     const cv::DMatch& m=matches[i];
     Eigen::Vector3f from=newer_node->feature_location_3d_[m.queryIdx].head<3>();
     Eigen::Vector3f to=newer_node->feature_location_3d_[m.queryIdx].head<3>();
-    if(std::isnan(from(2)||std::isnan(to(2)))
+    if(std::isnan(from(2))||std::isnan(to(2)))
       continue;
     weight=1.0/(from(2)*to(2));
     
