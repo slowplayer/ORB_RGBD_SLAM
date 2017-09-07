@@ -6,11 +6,13 @@ Node(const cv::Mat& imRGB,const cv::Mat& imDepth,
        const cv::Mat& detector_mask,double timestamp,
        cv::Ptr<cv::Feature2D> detector,
        cv::Ptr<cv::DescriptorExtractor> extractor)
-:id_(-1),seq_id_(-1),vertex_id_(-1),init_node_matches_(0),timestamp_(timestamp)
+:id_(-1),seq_id_(-1),vertex_id_(-1),init_node_matches_(0),timestamp_(timestamp),pc_col(NULL)
 {
   cv::Mat imGray;
   
   cv::cvtColor(imRGB,imGray,CV_RGB2GRAY);
+  
+  createXYZRGBPointCloud(imDepth,imRGB);
   
   detector->detect(imGray,feature_location_2d_,detector_mask);
   

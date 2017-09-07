@@ -40,6 +40,8 @@ public:
   cv::Mat features_descriptors_;
   //3d-colors
   std::vector<cv::Vec3b> feature_color_3d_;
+  //3d-pointcloud
+  pointcloud_type* pc_col;
   
   int id_,seq_id_,vertex_id_;
   double timestamp_;

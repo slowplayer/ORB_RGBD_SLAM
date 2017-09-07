@@ -1,12 +1,16 @@
 #ifndef MISC_H
 #define MISC_H
 
+#include <cmath>
 #include <Eigen/Core>
 #include "g2o/types/slam3d/se3quat.h"
 #include "ParameterServer.h"
-
+#include "pcl/point_types.h"
 namespace ORB_RGBD_SLAM
 {
+typedef pcl::PointXYZRGB point_type;
+typedef pcl::PointCloud<point_type> pointcloud_type;
+pointcloud_type* createXYZRGBPointCloud (const cv::Mat& depth_msg, const cv::Mat& rgb_msg);   
 inline double depth_std_dev(double depth)
 {
   // From Khoselham and Elberink?
