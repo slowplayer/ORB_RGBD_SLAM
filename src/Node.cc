@@ -116,6 +116,7 @@ MatchingResult Node::matchNodePair(const Node* older_node)
       mr.edge.id2=this->id_;
       mr.edge.transform=mr.final_trafo.cast<double>();
       
+      //TODO:EMM model 
       
     }
   }

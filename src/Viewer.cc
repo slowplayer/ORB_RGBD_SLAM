@@ -2,7 +2,7 @@
 
 namespace ORB_RGBD_SLAM
 {
-Viewer::Viewer(FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer)
+Viewer::Viewer()
 {
 
 }
@@ -19,12 +19,6 @@ void Viewer::Run()
     pangolin::ModelViewLookAt(mViewpointX,mViewpointY,mViewpointZ,0,0,0,0.0,-1.0,0.0);
   pangolin::View& d_cam=pangolin::CreateDisplay().SetBounds(0.0,1.0,0.0,1.0).SetHandler(new pangolin::Handler3D(s_cam));
   
-  pangolin::OpenGlMatrix Twc;
-  Twc.SetIdentity();
-  
-  while(1)
-  {
-    
-  }
+ 
 }
 }

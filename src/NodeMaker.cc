@@ -1,32 +1,29 @@
-#include "Tracker.h"
+#include "NodeMaker.h"
 
 namespace ORB_RGBD_SLAM
 {
-Tracker::Tracker()
+NodeMaker::NodeMaker()
 {
   detector_=createDetector();
   extractor_=createDescriptorExtractor();
-  
-  //TODO: fix GraphManager constructor
-  graph_mgr=new GraphManager();
 }
-void Tracker::GrabRGBD(const cv::Mat& imRGB, const cv::Mat& imDepth, double timestamp)
+void NodeMaker::setTracker(Tracking* pTracker)
 {
-//  cv::Mat gray_img;
-  cv::Mat depth_mono8_img;
+  mpTracker=pTracker;
+}
+void NodeMaker::GrabRGBD(const cv::Mat& imRGB, const cv::Mat& imDepth, double timestamp)
+{
+  cv::Mat depth_mono8_img; 
   
-  //cv::cvtColor(imRGB,gray_img,CV_RGB2GRAY);
-  
-  //TODO:make sure the type of imDepth is CV_32FC1
   depthToCV8UC1(imDepth,depth_mono8_img);
   
   Node* node_ptr=new Node(imRGB,imDepth,depth_mono8_img,timestamp,detector_,extractor_);
   
-  processNode(node_ptr);
+  //TODO:add node to Tracker queue
+  mpTracker->InsertNode(node_ptr);
 }
-void Tracker::depthToCV8UC1(cv::Mat& depth_img, cv::Mat& mono8_img)
+void NodeMaker::depthToCV8UC1(cv::Mat& depth_img, cv::Mat& mono8_img)
 {
-  //Process images
   if(depth_img.type() == CV_32FC1)
   {
     depth_img.convertTo(mono8_img, CV_8UC1, 100,0); //milimeter (scale of mono8_img does not matter)
@@ -39,10 +36,5 @@ void Tracker::depthToCV8UC1(cv::Mat& depth_img, cv::Mat& mono8_img)
     depth_img.convertTo(float_img, CV_32FC1, 0.001, 0);//From mm to m(scale of depth_img matters)
     depth_img = float_img;
   }
- 
-}
-void Tracker::processNode(Node* new_node)
-{
-   bool has_been_added=graph_mgr->addNode(new_node);
 }
 }
