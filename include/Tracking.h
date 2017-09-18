@@ -6,8 +6,13 @@
 
 #include "Node.h"
 
+#include "Optimizer.h"
+#include "LocalMapping.h"
+
 namespace ORB_RGBD_SLAM
 {
+class Optimizer;
+class LocalMapping;
 class Tracking
 {
 public:
@@ -15,6 +20,8 @@ public:
   
   void Run();
   
+  void setOptimizer(Optimizer* pOptimizer);
+  void setLocalMapper(LocalMapping* pLocalMapper);
   void InsertNode(Node* pNode);
   
   enum eTrackingState
@@ -29,11 +36,15 @@ private:
   bool CheckNodes();
   bool processNode();
 
-  bool firstNode();
+  void firstNode();
   bool otherNode();
   
   std::list<Node*> mpTrackQueue;
   std::mutex mMutexTrackQueue;
+  
+  Optimizer* mpOptimizer;
+  LocalMapping* mpLocalMapper;
+  
   
   Node* mpCurrNode;
 };

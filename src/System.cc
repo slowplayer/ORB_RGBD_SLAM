@@ -21,6 +21,11 @@ System::System(const std::string paramFile)
   
   mpNodeMaker->setTracker(mpTracker);
   
+  mpTracker->setOptimizer(mpOptimizer);
+  mpTracker->setLocalMapper(mpLocalMapper);
+  
+  mpLocalMapper->setOptimizer(mpOptimizer);
+  
 }
 void System::TrackRGBD(const cv::Mat& imRGB, const cv::Mat& imDepth, double timestamp)
 {

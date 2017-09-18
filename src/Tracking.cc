@@ -7,6 +7,15 @@ Tracking::Tracking()
 {
 
 }
+void Tracking::setOptimizer(Optimizer* pOptimizer)
+{
+  mpOptimizer=pOptimizer;
+}
+void Tracking::setLocalMapper(LocalMapping* pLocalMapper)
+{
+  mpLocalMapper=pLocalMapper;
+}
+
 void Tracking::Run()
 {
   eState=NOT_INITIALIZED;
@@ -27,7 +36,6 @@ void Tracking::Run()
 void Tracking::InsertNode(Node* pNode)
 {
   std::unique_lock<std::mutex> lock(mMutexTrackQueue);
-  //TODO:FIRST NODE?
   mpTrackQueue.push_back(pNode);
 }
 bool Tracking::CheckNodes()
@@ -45,9 +53,21 @@ bool Tracking::processNode()
   
   if(eState==NOT_INITIALIZED)
   {
-     return firstNode();
+     firstNode();
+     eState=TRACK_OK;
+     return true;
   }
   return otherNode();
+}
+void Tracking::firstNode()
+{
+  mpOptimizer->InsertFirstNode(mpCurrNode);
+}
+bool Tracking::otherNode()
+{
+  
+  
+  mpLocalMapper->InsertNode(mpCurrNode);
 }
 
 }
