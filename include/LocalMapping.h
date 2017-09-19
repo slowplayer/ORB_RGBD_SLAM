@@ -16,16 +16,15 @@ public:
   LocalMapping();
   
   void setOptimizer(Optimizer* pOptimizer);
-  void InsertNode(Node* pNode);
+  void InsertNode(Node* pNode,std::list<const Node*>& pComp);
   void addKeyframe(int id);
   void Run();
 private:
   bool CheckNodes();
   
   std::list<Node*> mpMapQueue;
+  std::list<std::list<const Node*> > mpCompQueue;
   std::mutex mMutexMapQueue;
-  
-  std::list<int> keyframe_ids_;
   
   Optimizer* mpOptimizer;
 };

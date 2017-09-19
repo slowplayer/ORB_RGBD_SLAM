@@ -6,20 +6,19 @@ LocalMapping::LocalMapping()
 {
 
 }
-void LocalMapping::InsertNode(Node* pNode)
+void LocalMapping::InsertNode(Node* pNode,std::list<const Node*>& pComp)
 {
-  std::unique_lock<std::mutex> lock(mMutexMapQueue);
-  mpMapQueue.push_back(pNode);
+  {
+    std::unique_lock<std::mutex> lock(mMutexMapQueue);
+    mpMapQueue.push_back(pNode);
+    mpCompQueue.push_back(pComp);
+  }
 }
 
 bool LocalMapping::CheckNodes()
 {
   std::unique_lock<std::mutex> lock(mMutexMapQueue);
-  return (!mpMapQueue.empty());
-}
-void LocalMapping::addKeyframe(int id)
-{
-  keyframe_ids_.push_back(id);
+  return (!mpMapQueue.empty()&&!mpCompQueue.empty());
 }
 
 void LocalMapping::Run()

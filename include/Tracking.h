@@ -3,6 +3,7 @@
 
 #include <list>
 #include <mutex>
+#include <map>
 
 #include "Node.h"
 
@@ -39,12 +40,23 @@ private:
   void firstNode();
   bool otherNode();
   
+  bool nodeComparisons(Node* new_node,
+    Eigen::Matrix4d& curr_motion_estimate,bool& edge_to_keyframe);	
+  std::list<int> getPotentialEdgeTargetsWithDijkstra(const Node* new_node,
+    int seq_targets,int geod_targets,int samp_targets,int prodecessor_id,bool include_predecessor);
+  
+  
   std::list<Node*> mpTrackQueue;
   std::mutex mMutexTrackQueue;
   
   Optimizer* mpOptimizer;
   LocalMapping* mpLocalMapper;
   
+  unsigned int next_seq_id;
+  unsigned int next_vertex_id;
+  std::map<int,Node*> graph_;
+  
+  std::list<int> keyframe_ids_;
   
   Node* mpCurrNode;
 };

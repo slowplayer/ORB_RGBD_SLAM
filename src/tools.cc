@@ -1,5 +1,5 @@
 #include "tools.h"
-
+#include "ParameterServer.h"
 namespace ORB_RGBD_SLAM
 {
 g2o::SE3Quat eigen2G2O(const Eigen::Matrix4d& eigen_mat) 
@@ -11,6 +11,28 @@ g2o::SE3Quat eigen2G2O(const Eigen::Matrix4d& eigen_mat)
 
   return result;
 } 
-  
+bool isSmallTrafo(const g2o::SE3Quat& t, double seconds)
+{
+    if(seconds <= 0.0){
+      return true;
+    }
+    float angle_around_axis = 2.0*acos(t.rotation().w()) *180.0 / M_PI;
+    float dist = t.translation().norm();
+    //Q_EMIT setGUIInfo2(infostring);
+    ParameterServer* ps =  ParameterServer::instance();
+    //Too big fails too
+    return (dist / seconds < ps->getParam("max_translation_meter") &&
+            angle_around_axis / seconds < ps->getParam("max_rotation_degree"));
+}
+
+bool isBigTrafo(const g2o::SE3Quat& t)
+{
+    float angle_around_axis = 2.0*acos(t.rotation().w()) *180.0 / M_PI;
+    float dist = t.translation().norm();
+    //Q_EMIT setGUIInfo2(infostring);
+    ParameterServer* ps =  ParameterServer::instance();
+    return (dist > ps->get<double>("min_translation_meter") ||
+            angle_around_axis > ps->get<double>("min_rotation_degree"));
+}
   
 }

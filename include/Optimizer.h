@@ -36,6 +36,9 @@ public:
   
   void Run();
   
+  g2o::HyperGraph::VertexSet& DijkstraFunc(int id);
+  
+  //TODO:may need lock
   g2o::HyperGraph::VertexSet camera_vertices;
   g2o::HyperGraph::EdgeSet cam_cam_edges_;
   g2o::HyperGraph::EdgeSet current_match_edges_;
@@ -53,9 +56,6 @@ private:
   std::list<Node*> mpOptimizeQueue;
   std::mutex mMutexOptimizeQueue;
   
-  unsigned int next_seq_id;
-  unsigned int next_vertex_id;
-  std::map<int,Node*> graph_;
 };
 }
 #endif

@@ -3,18 +3,18 @@
 namespace ORB_RGBD_SLAM
 {
 Optimizer::Optimizer():
-optimizer_(NULL),
-next_seq_id(0),next_vertex_id(0)
+optimizer_(NULL)
 {
     createOptimizer();
 }
+void Optimizer::addVertex(g2o::VertexSE3* pose)
+{
+  std::unique_lock<std::mutex> lock(mMutexOptimizer);
+  optimizer_->addVertex(pose);
+}
 void Optimizer::InsertFirstNode(Node* pNode)
 {
-   pNode->id_=graph_.size();
-   pNode->seq_id_=next_vertex_id++;
-   pNode->vertex_id_=next_vertex_id++;
-   graph_[pNode->id_]=pNode;
-   
+  
    init_base_pose_=Eigen::Matrix4d::Identity();
    
    g2o::VertexSE3* reference_pose=new g2o::VertexSE3;
@@ -27,18 +27,24 @@ void Optimizer::InsertFirstNode(Node* pNode)
    
    addVertex(reference_pose);
    
-   //TODO:about the first keyframe
+   //TODO:optimize graph
 }
-void Optimizer::addVertex(g2o::VertexSE3* pose)
-{
-  std::unique_lock<std::mutex> lock(mMutexOptimizer);
-  optimizer_->addVertex(pose);
-}
-
 void Optimizer::InsertOtherNode(Node* pNode)
 {
   std::unique_lock<std::mutex> lock(mMutexOptimizeQueue);
   mpOptimizeQueue.push_back(pNode);
+}
+g2o::HyperGraph::VertexSet& Optimizer::DijkstraFunc(int id)
+{
+  {
+    std::unique_lock<std::mutex> lock(mMutexOptimizer);
+    g2o::HyperDijkstra hypdij(optimizer_);
+    g2o::UniformCostFunction cost_function;
+    g2o::VertexSE3* prev_vertex=dynamic_cast<g2o::VertexSE3*>(optimizer_->vertex(id));
+    hypdij.shortesPaths(prev_vertex,&cost_function,ParameterServer::instance()->getParam("geodesic_path"));
+    g2o::HyperGraph::VertexSet& vs=hypdij.visited();
+  }
+  return vs;
 }
 bool Optimizer::CheckNodes()
 {
